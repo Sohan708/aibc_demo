@@ -8,7 +8,7 @@ User=root
 Group=root
 Type=simple
 ExecStart=/bin/sh -c '/opt2/sees/aibc_demo/d6t/bin/SensorDataApp & /usr/bin/node /opt2/sees/aibc_demo/nodejs/server.js &'
-WorkingDirectory=/opt2/sees/Sensor-Data-Application
+WorkingDirectory=/opt2/sees/aibc_demo
 Restart=always
 RestartSec=5
 

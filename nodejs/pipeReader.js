@@ -109,9 +109,6 @@ function closePipeReader() {
         }
         fd = null;
     }
-    
-    // Close MongoDB connection
-    apiClient.closeMongoDB();
 }
 
 module.exports = {

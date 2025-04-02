@@ -3,37 +3,22 @@
  */
 const express = require('express');
 const router = express.Router();
-const { MongoClient } = require('mongodb');
 const config = require('./config');
 const apiClient = require('./apiClient');
 const moment = require('moment');
-const { getCurrentDateTime } = require('./schema');
 
-// MongoDB client reference
-let mongoClient = null;
-let db = null;
-let temperatureCollection = null;
-let alertsCollection = null;
-
-// Initialize MongoDB connection
-async function initMongo() {
-    if (!mongoClient) {
-        try {
-            mongoClient = new MongoClient(config.mongodb.uri);
-            await mongoClient.connect();
-            console.log('Routes connected to MongoDB');
-            
-            db = mongoClient.db(config.mongodb.dbName);
-            temperatureCollection = db.collection(config.mongodb.temperatureCollection);
-            alertsCollection = db.collection(config.mongodb.alertsCollection);
-        } catch (error) {
-            console.error('Error connecting to MongoDB from routes:', error.message);
-        }
-    }
+/**
+ * Get current date and time formatted
+ * @returns {Object} - Formatted current date and time
+ */
+function getCurrentDateTime() {
+    const momentDate = moment(new Date());
+    return {
+        date: momentDate.format('YYYY/MM/DD'),
+        time: momentDate.format('HH:mm:ss.SSS'),
+        created_at: momentDate.format('YYYY/MM/DD HH:mm:ss.SSS')
+    };
 }
-
-// Initialize when module is loaded
-initMongo();
 
 // API status endpoint
 router.get('/status', (req, res) => {
@@ -43,73 +28,37 @@ router.get('/status', (req, res) => {
         status: 'running',
         bufferedData: status.bufferedData,
         isProcessing: status.isProcessing,
-        mongoConnected: status.mongoConnected,
+        apiEndpoint: status.apiUrl,
         activeAlerts: status.sensorAlertsActive,
         lastUpdated: getCurrentDateTime().created_at
     });
 });
 
-// Get temperature readings (most recent first)
+// Get temperature readings 
 router.get('/temperature-data', async (req, res) => {
     try {
-        if (!temperatureCollection) {
-            await initMongo();
-            if (!temperatureCollection) {
-                return res.status(500).json({ error: 'MongoDB not connected' });
-            }
-        }
-        
-        const limit = parseInt(req.query.limit) || 20;
-        const sensor = req.query.sensor || null;
-        const date = req.query.date || null; // Format: YYYY/MM/DD
-        
-        const query = {};
-        if (sensor) query.sensor_id = sensor;
-        if (date) query.date = date;
-        
-        const readings = await temperatureCollection
-            .find(query)
-            .sort({ date: -1, time: -1 })
-            .limit(limit)
-            .toArray();
-            
-        res.json(readings);
+        // Since we're no longer using MongoDB, we return a message indicating this endpoint is for API submission only
+        res.status(200).json({ 
+            message: 'This endpoint is for API data submission only. Data retrieval is handled by the API server.', 
+            apiEndpoint: config.api.url 
+        });
     } catch (error) {
-        console.error('Error fetching temperature data:', error.message);
-        res.status(500).json({ error: 'Error fetching temperature data' });
+        console.error('Error with temperature data endpoint:', error.message);
+        res.status(500).json({ error: 'An error occurred with this endpoint' });
     }
 });
 
-// Get alert events (most recent first)
+// Get alert events
 router.get('/alerts', async (req, res) => {
     try {
-        if (!alertsCollection) {
-            await initMongo();
-            if (!alertsCollection) {
-                return res.status(500).json({ error: 'MongoDB not connected' });
-            }
-        }
-        
-        const limit = parseInt(req.query.limit) || 20;
-        const sensor = req.query.sensor || null;
-        const status = req.query.status || null; // 'active' or 'recovered'
-        const date = req.query.date || null; // Format: YYYY/MM/DD
-        
-        const query = {};
-        if (sensor) query.sensor_id = sensor;
-        if (status) query.status = status;
-        if (date) query.date = date;
-        
-        const alerts = await alertsCollection
-            .find(query)
-            .sort({ date: -1, time: -1 })
-            .limit(limit)
-            .toArray();
-            
-        res.json(alerts);
+        // Since we're no longer using MongoDB, we return a message indicating this endpoint is for API submission only
+        res.status(200).json({ 
+            message: 'This endpoint is for API data submission only. Alert retrieval is handled by the API server.',
+            apiEndpoint: config.api.url.replace('/temperature-data', '/alerts')
+        });
     } catch (error) {
-        console.error('Error fetching alerts:', error.message);
-        res.status(500).json({ error: 'Error fetching alerts' });
+        console.error('Error with alerts endpoint:', error.message);
+        res.status(500).json({ error: 'An error occurred with this endpoint' });
     }
 });
 
@@ -127,14 +76,13 @@ router.post('/temperature-data', async (req, res) => {
             data.sensor_id = 'D6T-001'; // Default sensor ID
         }
         
-        // Current timestamp will be added in the processData function
-        
         // Process the data
         await apiClient.processData(data);
         
         res.json({ 
             success: true, 
-            message: 'Temperature data submitted successfully'
+            message: 'Temperature data submitted successfully and forwarded to API server',
+            apiEndpoint: config.api.url
         });
     } catch (error) {
         console.error('Error submitting temperature data:', error.message);

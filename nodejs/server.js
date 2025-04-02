@@ -18,7 +18,7 @@ app.use('/', routes);
 // Start Express server
 app.listen(config.port, () => {
     console.log(`Server running on port ${config.port}`);
-    console.log(`MongoDB URI: ${config.mongodb.uri}`);
+    console.log(`API Endpoint: ${config.api.url}`);
     console.log(`Temperature Alert Thresholds: ${config.temperature.minNormal}°C - ${config.temperature.maxNormal}°C`);
     console.log('Setting up pipe reader...');
     pipeReader.setupPipeReader();

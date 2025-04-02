@@ -1,16 +1,35 @@
-# D6T-44L-06 Temperature Sensor Data System
+# AIBC Demo - Temperature Sensor Data System
 
-This system collects temperature data from D6T-44L-06 thermal sensors and forwards it to an external API. The system consists of two main components:
+This system collects temperature data from D6T-44L-06 thermal sensors and forwards it to an external API server. The system consists of two main components:
 
 1. **C Program (Sensor Data Collector)**: Reads data from the thermal sensors and writes it to a named pipe.
-2. **Node.js Application (Data Forwarder)**: Reads data from the named pipe and forwards it to an external API.
+2. **Node.js Application (Data Forwarder)**: Reads data from the named pipe and forwards it to an API server.
+
+## Project Structure
+
+```
+aibc_demo/
+├── d6t/                   # C program for sensor data collection
+│   ├── bin/               # Compiled executable files
+│   ├── obj/               # Object files 
+│   └── src/               # Source code and Makefile
+│       ├── Makefile
+│       └── sensor.c
+├── nodejs/                # Node.js API client for data forwarding
+│   ├── apiClient.js       # Client for sending data to API
+│   ├── config.js          # Configuration settings
+│   ├── package.json       # Node.js dependencies
+│   ├── pipeReader.js      # Module for reading from named pipe
+│   ├── routes.js          # API routes
+│   └── server.js          # Main server application
+└── aibc_demo.service      # Systemd service file
+```
 
 ## System Requirements
 
 - Yocto Linux system
 - I2C interface (bus 0)
 - Root privileges for I2C access
-- json-c library for the C program
 - Node.js and npm for the data forwarder
 
 ## Hardware Requirements
@@ -22,15 +41,16 @@ This system collects temperature data from D6T-44L-06 thermal sensors and forwar
 
 ### C Program
 
-1. Navigate to the `c_programming` directory:
+1. Navigate to the `d6t/src` directory:
    ```
-   cd c_programming
+   cd d6t/src
    ```
 
-2. Compile the C program:
+2. Compile the C program using make:
    ```
-   gcc -o sensor_collector sensor.c -ljson-c
+   make
    ```
+   This will create the executable in `d6t/bin/SensorDataApp`
 
 ### Node.js Application
 
@@ -44,8 +64,8 @@ This system collects temperature data from D6T-44L-06 thermal sensors and forwar
    npm install
    ```
 
-3. Configure the API endpoint:
-   You can set the API endpoint through the environment variable `API_URL` or update the default value in `server.js`.
+3. Configure the API endpoint in `config.js`:
+   The current configuration sends data to `http://192.168.5.117:3000/temperature-data`
 
 ## Usage
 
@@ -54,7 +74,7 @@ This system collects temperature data from D6T-44L-06 thermal sensors and forwar
 Run the sensor data collector with root privileges:
 
 ```
-sudo ./c_programming/sensor_collector
+sudo ./d6t/bin/SensorDataApp
 ```
 
 ### Starting the Node.js Application
@@ -72,22 +92,54 @@ Or using node directly:
 node nodejs/server.js
 ```
 
+### Setting up as a Service
+
+A systemd service file is provided (`aibc_demo.service`). To install:
+
+1. Copy the service file to the systemd directory:
+   ```
+   sudo cp aibc_demo.service /etc/systemd/system/
+   ```
+
+2. Enable and start the service:
+   ```
+   sudo systemctl enable aibc_demo.service
+   sudo systemctl start aibc_demo.service
+   ```
+
 ## Data Flow
 
 1. The C program reads temperature data from the D6T-44L-06 sensors via I2C bus 0.
-2. The data is formatted as JSON and written to the named pipe at `/tmp/sensor_data_pipe`.
+2. The data is formatted and written to the named pipe at `/tmp/sensor_data_pipe`.
 3. The Node.js application reads from the pipe and forwards the data to the configured API endpoint.
 4. If the API is unreachable, the data is buffered and retried later.
 
-## API Format
+## API Data Format
 
-The data sent to the API is in the following JSON format:
+The system sends two types of data to the API server:
 
+### Temperature Data
 ```json
 {
-  "sensor_id": "sensor_1",
-  "date": "2025-03-26 11:41:31",
-  "temperature": [22.5, 23.1, 22.8, 23.0, 22.7, 23.2, 22.9, 23.3, 22.6, 23.0, 22.8, 23.1, 22.7, 23.2, 22.9, 23.0]
+  "sensor_id": "D6T-001",
+  "date": "2025/04/02",
+  "time": "13:18:51.123",
+  "temperature_data": [25.4, 26.1, 24.8, 25.3, 25.0, 25.2, 24.9, 25.5],
+  "average_temp": 25.15,
+  "status": "normal",
+  "created_at": "2025/04/02 13:18:51.123"
+}
+```
+
+### Alert Data (when temperature anomalies are detected)
+```json
+{
+  "sensor_id": "D6T-001",
+  "date": "2025/04/02",
+  "time": "13:18:51.123",
+  "alert_reason": "温度が 70.0°C超えました",
+  "status": "alert",
+  "created_at": "2025/04/02 13:18:51.123"
 }
 ```
 
@@ -107,3 +159,4 @@ This provides information about the service status, how many items are in the bu
 - Check that the named pipe exists at `/tmp/sensor_data_pipe`
 - Verify that the sensor is properly connected to I2C bus 0
 - Check the logs from both the C program and Node.js application for errors
+- Verify the API server at 192.168.5.117:3000 is running and accessible
