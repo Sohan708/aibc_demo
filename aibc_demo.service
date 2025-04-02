@@ -1,0 +1,16 @@
+[Unit]
+Description=aibc demo Application Service
+After=syslog.target network.target
+Wants=nodejs.service
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/bin/sh -c '/opt2/sees/aibc_demo/d6t/bin/SensorDataApp & /usr/bin/node /opt2/sees/aibc_demo/nodejs/server.js &'
+WorkingDirectory=/opt2/sees/Sensor-Data-Application
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

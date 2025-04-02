@@ -1,0 +1,45 @@
+# Node.js related
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.npm/
+package-lock.json
+.env
+
+# C code related
+*.o
+*.out
+*.exe
+*.a
+*.so
+*.dylib
+c_programming/sensor
+
+# Log files
+/var/log/sensor-app/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build directories
+dist/
+build/
+tmp/
+
+# Named pipe (should be created at runtime)
+/tmp/sensor_data_pipe
