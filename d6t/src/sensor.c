@@ -202,8 +202,15 @@ int main() {
         char time_str[20];
         sprintf(date_str, "%04d-%02d-%02d", 
                 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-        sprintf(time_str, "%02d:%02d:%02d:%03ld", 
-                tm.tm_hour, tm.tm_min, tm.tm_sec, tv.tv_usec / 1000);
+        
+        long raw_msec = tv.tv_usec / 1000;  // Convert microseconds to milliseconds
+
+        if (raw_msec >= 300) {  // Skip if milliseconds are less than 300
+            sprintf(time_str, "%02d:%02d:%02d:%03ld", 
+                tm.tm_hour, tm.tm_min, tm.tm_sec, raw_msec);
+            printf("%s\n", time_str); // Print only if milliseconds are 300 or more
+        }
+                
 
         // Format output string for console and pipe
         char buffer[1024];
