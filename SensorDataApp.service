@@ -1,0 +1,15 @@
+[Unit]
+Description=SensorDataApp Application Service
+After=syslog.target network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/bin/bash -c '/opt2/sees/aibc_demo/d6t/bin/SensorDataApp & wait &>> /opt2/sees/aibc_demo/logs/SensorDataApp.log'
+WorkingDirectory=/opt2/sees/aibc_demo
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
