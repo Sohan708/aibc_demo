@@ -1,0 +1,35 @@
+{
+  "appenders": {
+    "console": { 
+      "type": "console"
+    },
+    "file": { 
+      "type": "dateFile", 
+      "filename": "../logs/pipeReader.log", 
+      "pattern": ".yyyy-MM-dd",
+      "compress": true 
+    },
+    "errors": { 
+      "type": "dateFile", 
+      "filename": "../logs/error.log", 
+      "pattern": ".yyyy-MM-dd",
+      "compress": true 
+    },
+    "errorFilter": { 
+      "type": "logLevelFilter", 
+      "appender": "errors", 
+      "level": "error",
+      "maxLevel": "fatal"
+    }
+  },
+  "categories": {
+    "default": { 
+      "appenders": ["console", "file", "errorFilter"], 
+      "level": "info" 
+    },
+    "pipeReader": {
+      "appenders": ["console", "file", "errorFilter"],
+      "level": "info"
+    }
+  }
+}
