@@ -64,7 +64,7 @@ function initAlertController(config) {
                 date: sensorData.date,
                 time: sensorData.time,
                 alert_reason: isAbnormal ? analysis.alertReason : '温度が正常範囲に戻りました',
-                status: 'alert'
+                status: isAbnormal ? '１：異常' : '0 ：正常'
             };
             
             // Send alert to API

@@ -172,7 +172,7 @@ The system sends two types of data to the API server:
   "date": "2025-04-08",
   "time": "14:25:23:171",
   "alert_reason": "温度が 70.0°C超えました",
-  "status": "alert"
+  "status": "0 ：正常"
 }
 ```
 
