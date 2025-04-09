@@ -11,7 +11,7 @@
     },
     "errors": { 
       "type": "dateFile", 
-      "filename": "../logs/error.log", 
+      "filename": "../logs/pipeReader.log", 
       "pattern": ".yyyy-MM-dd",
       "compress": true 
     },
