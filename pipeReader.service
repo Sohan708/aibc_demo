@@ -6,8 +6,13 @@ After=syslog.target network.target
 User=root
 Group=root
 Type=simple
-ExecStart=/bin/bash -c '/usr/local/bin/node /opt2/sees/aibc_demo/nodejs/server.js'
+
+ExecStart=/usr/local/bin/node /opt2/sees/aibc_demo/nodejs/server.js
 WorkingDirectory=/opt2/sees/aibc_demo
+
+StandardOutput=append:/opt2/sees/aibc_demo/logs/pipeReader.log
+StandardError=append:/opt2/sees/aibc_demo/logs/pipeReader.log
+
 Restart=always
 RestartSec=5
 
