@@ -279,13 +279,14 @@ int main() {
         printf("%s", buffer);
         
         // Write to named pipe
-        int pipe_fd = open(PIPE_NAME, O_WRONLY | O_NONBLOCK);
+        printf("Waiting for pipe reader...\n");
+        int pipe_fd = open(PIPE_NAME, O_WRONLY); // Removed O_NONBLOCK to wait for reader
         if (pipe_fd != -1) {
             write(pipe_fd, buffer, strlen(buffer));
             close(pipe_fd);
             printf("Data sent to pipe\n");
         } else {
-            printf("No reader on pipe, skipping write\n");
+            perror("Failed to open pipe");
         }
 
         delay(300);
