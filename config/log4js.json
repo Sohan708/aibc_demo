@@ -5,13 +5,13 @@
     },
     "file": { 
       "type": "dateFile", 
-      "filename": "../logs/pipeReader.log", 
+      "filename": "logs/pipeReader.log", 
       "pattern": ".yyyy-MM-dd",
       "compress": true 
     },
     "errors": { 
       "type": "dateFile", 
-      "filename": "../logs/pipeReader.log", 
+      "filename": "logs/pipeReader.log", 
       "pattern": ".yyyy-MM-dd",
       "compress": true 
     },
