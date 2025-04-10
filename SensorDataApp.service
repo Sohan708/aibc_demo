@@ -8,6 +8,7 @@ Group=root
 Type=simple
 ExecStart=/bin/bash -c '/opt2/sees/aibc_demo/d6t/bin/SensorDataApp'
 WorkingDirectory=/opt2/sees/aibc_demo
+
 Restart=always
 RestartSec=5
 
