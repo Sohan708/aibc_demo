@@ -1,13 +1,15 @@
 CC = gcc
 TARGET = ../bin/SensorDataApp
-SRC = sensor.c
-OBJ = ../obj/sensor.o
+SRC = sensor.c logger.c
+OBJS = ../obj/sensor.o ../obj/logger.o
+CFLAGS = -Wall -Wextra
 
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET) $(LIBS)
+$(TARGET): $(OBJS)
+	$(CC) $(OBJS) -o $(TARGET) $(LIBS)
 
-$(OBJ): $(SRC)
-	$(CC) -c $(SRC) -o $(OBJ)
+../obj/%.o: %.c
+	mkdir -p ../obj
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJS) $(TARGET)
